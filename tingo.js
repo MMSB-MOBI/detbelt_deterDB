@@ -3,7 +3,7 @@ var path = require('path');
 var fs = require('fs');
 var EventEmitter = require('events');
 var backupModule = require('./mongodb_backup.js');
-
+const cst = require('./constants')
 
 
 //Function to run the backup
@@ -91,7 +91,7 @@ var insertData = function(db, path) {
 			let detergent = dict.data[i];
 			let check = checkConditionsInsert(detergent);
 			if(check === true){ //if conditions are check
-				db.collection("tingoDet.json").insert(detergent, function(err,result){
+				db.collection(cst.DB_JSON_NAME).insert(detergent, function(err,result){
 					if(err){
 						if (err.code === 11000) { //if _id is not unique
 							let nameDet = err.errmsg.split('"')[1]; //id of the detergent error
@@ -120,7 +120,7 @@ var insertData = function(db, path) {
 
 var FindinDet =  function(db) {
 	return new Promise((resolve, reject)=> {
-		let collection = db.collection('tingoDet.json');
+		let collection = db.collection(cst.DB_JSON_NAME);
 		//console.log(collection)
   		let res;
 		collection.find({}).toArray(function(error,content){
@@ -147,7 +147,7 @@ var _FindinDet =  function(db) {
 
 var Find_a_Det = function(db,id){
 	return new Promise((resolve,reject)=>{
-		let collection = db.collection('tingoDet.json');
+		let collection = db.collection(cst.DB_JSON_NAME);
  		collection.find({"_id":id}).toArray(function(error,content){
 			let det;	
 			if(content.length === 0){
@@ -179,7 +179,7 @@ var _Find_a_Det =  function(db,id) {
 */
 var Find_all_id = function(db){
 	return new Promise((resolve,reject)=>{
-		let collection = db.collection('tingoDet.json');
+		let collection = db.collection(cst.DB_JSON_NAME);
 		collection.find({},{"id":1}).toArray(function(error,content){
 			let l_id = [];
 			content.forEach(function(doc){
@@ -215,7 +215,7 @@ var _Find_all_id = function(db){
 var getallkeys = function(db){
 	return new Promise((resolve, reject)=> {
 		let allKeys = {};
-		let collection = db.collection('tingoDet.json');
+		let collection = db.collection(cst.DB_JSON_NAME);
 		collection.find({}).toArray(function(error,content){
 			content.forEach(function(doc){
 				Object.keys(doc).forEach(function(key){allKeys[key] = '1'})
@@ -281,7 +281,7 @@ var _deleteData = function(db){
 */
 var deleteData = function(db){
 	return new Promise((resolve,reject)=>{
-		db.collection("tingoDet.json").drop(function(err,result){ //deletion of the database
+		db.collection(cst.DB_JSON_NAME).drop(function(err,result){ //deletion of the database
 		if(err){
 	    	reject({"status":'Error', "data": 'Error in the deletion of ' + idDet});
 		}
@@ -316,7 +316,7 @@ var _deleteDet = function(db, idDet){
 */
 var deleteDet = function(db, idDet){
 	return new Promise((resolve,reject)=>{
-		db.collection('tingoDet.json').remove({'_id' : idDet}, function(err, result) {
+		db.collection(cst.DB_JSON_NAME).remove({'_id' : idDet}, function(err, result) {
 	    if (err){
 	    	reject({"status":'Error', "data":'Error in the deletion of ' + idDet});
 	    }
@@ -366,7 +366,7 @@ var insertDet = function(db, det){
 		modifyColor(det);
 		let check = checkConditionsInsert(det); //verification of conditions
 		if(check === true){ //if the conditions are verified
-			db.collection('tingoDet.json').insert(det, function(err,result){
+			db.collection(cst.DB_JSON_NAME).insert(det, function(err,result){
 				if(err){
 					if (err.code == 11000) { //11000 : error code for an already existing identifier
 						console.log('The detergent name must be unique');
@@ -397,12 +397,12 @@ var modifyDet = function(db, id, det){
 		modifyColor(det.color);
 		let check = checkConditionsInsert(det);
 		if(check === true){
-			db.collection('tingoDet.json').find({'_id' : id}).toArray((err, result) => {
+			db.collection(cst.DB_JSON_NAME).find({'_id' : id}).toArray((err, result) => {
 			if(err){
 				reject({"status":'Error',"data":'Error in the modification of ' + id}); 
 			}
 			if(result.length === 1){
-				db.collection('tingoDet.json').update({'_id' : id},{$set: det}, function(err,result){
+				db.collection(cst.DB_JSON_NAME).update({'_id' : id},{$set: det}, function(err,result){
 					if(err){
 						reject({"status":'Error',"data":'Error in the modification of ' + id}); 
 					}

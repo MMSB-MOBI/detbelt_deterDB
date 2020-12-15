@@ -1,7 +1,7 @@
 /* Imports */
 
 var Engine = require('tingodb')({});
-var db = new Engine.Db('./data/db', {});
+
 var dbState;
 var express = require('express');
 var jsonfile = require('jsonfile');
@@ -16,9 +16,12 @@ var app = express();
 var events = require('events');
 var cors = require('cors');
 var backupControl = require('./script/backup_ctrl')
+const cst = require('./constants')
 app.options('*', cors()) //needed to allow communication between different localhost (here 3000 and 8080)
 
 // if we choose to use mongoDB we don't choose to use the default database TingoDB
+
+var db = new Engine.Db(cst.DB_DIR, {});
 
 let testDb = function(){
   if(process.argv[2]==="--mongo"){
@@ -223,7 +226,7 @@ app.get('/img/:file', function (req, res, next) {
   //console.log('Detergent image request:', req.params.file);
   next();
 },function (req, res, next) {
-  res.sendFile(__dirname + '/data/pdb_images/'+req.params.file);
+  res.sendFile(cst.PDB_IMAGE_DIR + "/" + req.params.file);
 });
 
 //cors () needed to allow communication between different localhost
@@ -251,7 +254,7 @@ app.get('/pdb/:file', function (req, res, next) {
   //console.log('Detergent PDB file request:', req.params.file);
   next();
 }, function (req, res, next) {
-  res.sendFile(__dirname + '/data/pdb_files/'+req.params.file);
+  res.sendFile(PDB_DIR + "/" +req.params.file);
 });
 app.use('/css', express.static(__dirname + '/style'));
 
