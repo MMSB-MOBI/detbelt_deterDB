@@ -254,8 +254,19 @@ app.get('/pdb/:file', function (req, res, next) {
   //console.log('Detergent PDB file request:', req.params.file);
   next();
 }, function (req, res, next) {
-  res.sendFile(PDB_DIR + "/" +req.params.file);
+  res.sendFile(cst.PDB_DIR + "/" +req.params.file);
 });
+
+//Route to get data by category to display in detbelt client
+app.get("/sortByCategory", (req, res) => {
+  DbApi.sortByCategory(db).then(data => res.send({"data": data}))
+    .catch(err => {
+      console.error(`Error while sortByCategory : ${err}`)
+      res.send({"error": err.message})
+    })
+})
+
+
 app.use('/css', express.static(__dirname + '/style'));
 
 // Operations on the database

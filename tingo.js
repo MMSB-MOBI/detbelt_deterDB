@@ -190,6 +190,31 @@ var Find_all_id = function(db){
 	})
 }
 
+const sortByCategory = function(db){
+	return new Promise((resolve,reject)=>{ 
+		const collection = db.collection(cst.DB_JSON_NAME);
+		collection.find({}).toArray((err, content) => {
+			if(err) reject(err); 
+			try{
+				let storedDict = {}
+				content.forEach((doc) => {
+					if(doc.category in storedDict){
+						storedDict[doc.category].push(doc._id)
+					}
+					else{
+						storedDict[doc.category] = [doc._id]
+					}
+				})
+			resolve(storedDict)
+			}
+			catch(error) {reject(error)}
+			
+			
+		})
+		
+	})
+}
+
 
 
 
@@ -524,5 +549,6 @@ module.exports = {
   	runBackup : runBackup,
   	//testmongo : testmongo,
   	Find_a_Det : Find_a_Det,
-  	Find_all_id : Find_all_id
+	  Find_all_id : Find_all_id, 
+	  sortByCategory : sortByCategory
 };
