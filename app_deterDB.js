@@ -72,10 +72,14 @@ process.argv.forEach(function(val,index,array){
     b_history = true;
   }
   if (val === "-init"){
-    DbApi.insertData(db, __dirname+'/'+arg[arg.indexOf("-init")+1]);
-    if(b_history ===true){
-      write_history("init",__dirname+'/'+arg[arg.indexOf("-init")+1])
-    } 
+    DbApi.deleteData(db).then(() => {
+      DbApi.insertData(db, arg[arg.indexOf("-init")+1]);
+      if(b_history ===true){
+        write_history("init",arg[arg.indexOf("-init")+1])
+      } 
+    })
+    
+    
   }
 
   else if(val === "-reinit"){
@@ -264,6 +268,27 @@ app.get("/sortByCategory", (req, res) => {
       console.error(`Error while sortByCategory : ${err}`)
       res.send({"error": err.message})
     })
+})
+
+app.get("/jsonSnapshot", (req, res) => {
+  const date = new Date()
+  const timestamp = String(date.getFullYear()) + String(date.getMonth()) + String(date.getDate())
+  DbApi.getSnapshotFormat(db)
+  .then(data => {
+    data["snapshot_date"] = timestamp; 
+    const data_str = JSON.stringify(data)
+    const file = `${cst.DB_DIR}/snapshot_${timestamp}.json`
+    fs.writeFile(file, data_str, (err) => {
+      if (err) {
+        res.send({"error": err.message})
+      }
+      else{
+        res.send({"ok": `snapshot writted to ${file}`})
+      }
+    })
+    
+  })
+  .catch(err => res.send({"error": err.message}))
 })
 
 

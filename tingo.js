@@ -215,6 +215,31 @@ const sortByCategory = function(db){
 	})
 }
 
+const getSnapshotFormat = function(db){
+	return new Promise((resolve,reject)=>{ 
+		const collection = db.collection(cst.DB_JSON_NAME);
+		collection.find({}).toArray((err, content) => {
+			if(err) reject(err); 
+			try{
+				let snapshot = {"data":{}}
+				content.forEach((doc) => {
+					if(doc.category in snapshot.data){
+						snapshot.data[doc.category].push({"name": doc._id, "vol":doc.volume, "color": doc.color})
+					}
+					else{
+						snapshot.data[doc.category] = [{"name": doc._id, "vol":doc.volume, "color": doc.color}]
+					}
+				})
+			resolve(snapshot)
+			}
+			catch(error) {reject(error)}
+			
+			
+		})
+		
+	})
+}
+
 
 
 
@@ -550,5 +575,6 @@ module.exports = {
   	//testmongo : testmongo,
   	Find_a_Det : Find_a_Det,
 	  Find_all_id : Find_all_id, 
-	  sortByCategory : sortByCategory
+	  sortByCategory : sortByCategory,
+	  getSnapshotFormat : getSnapshotFormat
 };
