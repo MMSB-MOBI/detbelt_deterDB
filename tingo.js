@@ -116,35 +116,6 @@ var insertData = function(db, path) {
 	
 }
 
-//Function to return the database
-
-var FindinDet =  function(db) {
-	return new Promise((resolve, reject)=> {
-		let collection = db.collection(cst.DB_JSON_NAME);
-		//console.log(collection)
-  		let res;
-		collection.find({}).toArray(function(error,content){
-			resolve(content);
-
-		});	
-	});
-}
-
-/*
-var _FindinDet =  function(db) {
-	let emitterDb = new EventEmitter(); 
-  	let collection = db.collection('tingoDet.json');
-  	let res;
-	collection.find({}).toArray(function(error,content){
-		res = content
-		emitterDb.emit('displayDb',res)
-	});
-	
-	//console.log(res)
-	return emitterDb;
-}
-*/
-
 var Find_a_Det = function(db,id){
 	return new Promise((resolve,reject)=>{
 		let collection = db.collection(cst.DB_JSON_NAME);
@@ -160,23 +131,6 @@ var Find_a_Det = function(db,id){
 	})
 }
 
-
-/*
-var _Find_a_Det =  function(db,id) {
-	let emitterDet = new EventEmitter();
-  	let collection = db.collection('tingoDet.json');
- 	collection.find({"_id":id}).toArray(function(error,content){
-		let det;	
-		if(content.length === 0){
-			det = {"error":"this detergent is probably not in our database"};	
-		}else{
-			det = content;
-		};
-		emitterDet.emit('DetFound',det)
-	});
-	return emitterDet;
-}
-*/
 var Find_all_id = function(db){
 	return new Promise((resolve,reject)=>{
 		let collection = db.collection(cst.DB_JSON_NAME);
@@ -245,28 +199,8 @@ const getSnapshot = function(db){
 	})
 }
 
-
-
-
-
-/*
-var _Find_all_id = function(db){
-	let emitterId = new EventEmitter();
-  	let collection = db.collection('tingoDet.json');
-	collection.find({},{"id":1}).toArray(function(error,content){
-		let l_id = [];
-		content.forEach(function(doc){
-			l_id.push(doc["_id"]);
-		})
- 		emitterId.emit('allIdDone',l_id)
-	});
-	return emitterId;
-}
-*/
-
 /////////////////////////////////////////////////
 //Function to return all keys of the database
-
 
 var getallkeys = function(db){
 	return new Promise((resolve, reject)=> {
@@ -296,45 +230,6 @@ var getallkeys = function(db){
 }
 
 
-/*
-var _getallkeys = function(db){
-
-	let emitterKey = new EventEmitter();
-	let allKeys = {};
-	let collection = db.collection('tingoDet.json');
-	collection.find({}).toArray(function(error,content){
-		content.forEach(function(doc){
-			Object.keys(doc).forEach(function(key){allKeys[key] = '1'})
-		})
-		let l_keys = Object.keys(allKeys)
-		emitterKey.emit('allKeyDone',l_keys)
-
-
-		//return l_keys;
-	})
-	return emitterKey;	
-		
-}
-*/
-
-//Function to delete the database
-/*
-var _deleteData = function(db){
-	let emitter = new EventEmitter();
-	db.collection("tingoDet.json").drop(function(err,result){ //deletion of the database
-		if(err){
-	    	emitter.emit('errorCode', ['Error', 'Error in the deletion of ' + idDet]); // can this be working ? (projet S1)
-		}
-		else{
-			let msg = 'The database has been deleted;'
-			console.log('The database has been deleted');
-			backupModule.control_backup(true);
-			emitter.emit('deleteOK', msg, result);
-		}
-	});
-	return emitter;
-}
-*/
 var deleteData = function(db){
 	return new Promise((resolve,reject)=>{
 		db.collection(cst.DB_JSON_NAME).drop(function(err,result){ //deletion of the database
@@ -350,235 +245,12 @@ var deleteData = function(db){
 		});
 	})
 }
-//Function to delete a detergent 
-/*idDet : variable with the _id of the detergent to delete
-*/
-/*
-var _deleteDet = function(db, idDet){
-	let emitter = new EventEmitter();
-	db.collection('tingoDet.json').remove({'_id' : idDet}, function(err, result) {
-	    if (err){
-	    	emitter.emit('errorCode', ['Error', 'Error in the deletion of ' + idDet]);
-	    }
-	    else{
-	    	let msg = idDet + ': The detergent has been removed';
-	    	console.log(msg);
-	    	backupModule.control_backup(true);
-	    	emitter.emit('deleteOK', ['OK_delete', msg]);
-		}
-    });
-    return emitter;
-}
-*/
-var deleteDet = function(db, idDet){
-	return new Promise((resolve,reject)=>{
-		db.collection(cst.DB_JSON_NAME).remove({'_id' : idDet}, function(err, result) {
-	    if (err){
-	    	reject({"status":'Error', "data":'Error in the deletion of ' + idDet});
-	    }
-	    else{
-	    	let msg = idDet + ': The detergent has been removed';
-	    	console.log(msg);
-	    	backupModule.control_backup(true);
-	    	resolve({"status":"OK_delete","data": msg});
-		}
-    });
-	})
-}
 
-
-//Function to add a new detergent 
-/*det : variable like { "_id" : "OM", "volume" : 391.1, "color" : [0,255,0], "category" : "maltoside"})
-*/
-/*
-var _insertDet = function(db, det){
-	let emitter = new EventEmitter();
-	modifyColor(det);
-	console.log(det);
-	let check = checkConditionsInsert(det); //verification of conditions
-	if(check === true){ //if the conditions are verified
-		db.collection('tingoDet.json').insert(det, function(err,result){
-			if(err){
-				if (err.code == 11000) { //11000 : error code for an already existing identifier
-				console.log('The detergent name must be unique');
-				emitter.emit('nameNotUnique', ['Error', 'The detergent name must be unique']);
-				}
-				else{
-					emitter.emit('errorCode', ['Error', 'Error in the insertion of detergent']); 
-				}
-			}
-			else{
-				console.log('The detergent has been added');
-				backupModule.control_backup(true);
-				emitter.emit('insertOK',['OK_insert', 'The detergent has been added']);
-			}
-		});
-	}
-	return emitter;
-}
-*/
-var insertDet = function(db, det){
-	return new Promise((resolve,reject)=>{
-		modifyColor(det);
-		let check = checkConditionsInsert(det); //verification of conditions
-		if(check === true){ //if the conditions are verified
-			db.collection(cst.DB_JSON_NAME).insert(det, function(err,result){
-				if(err){
-					if (err.code == 11000) { //11000 : error code for an already existing identifier
-						console.log('The detergent name must be unique');
-						reject({"status":'Error', "data": "The detergent name must be unique"});
-					}
-					else{
-						reject({"status":'Error', "data":"Error in the insertion of detergent"}); 
-					}
-				}
-				else{
-					console.log('The detergent has been added');
-					backupModule.control_backup(true);
-					resolve({"status":'OK_insert',"data":'The detergent has been added'});
-				}
-			});
-		}
-	})
-}
-
-//Function to modify a detegent
-/*id : _id of the detergent to modify
-* det : object contain object of the detergent { "_id" : "OM", "volume" : 391.1, "color" : [0,255,0], "category" : "maltoside"})
-*/
-
-
-var modifyDet = function(db, id, det){
-	return new Promise((resolve,reject)=>{
-		modifyColor(det.color);
-		let check = checkConditionsInsert(det);
-		if(check === true){
-			db.collection(cst.DB_JSON_NAME).find({'_id' : id}).toArray((err, result) => {
-			if(err){
-				reject({"status":'Error',"data":'Error in the modification of ' + id}); 
-			}
-			if(result.length === 1){
-				db.collection(cst.DB_JSON_NAME).update({'_id' : id},{$set: det}, function(err,result){
-					if(err){
-						reject({"status":'Error',"data":'Error in the modification of ' + id}); 
-					}
-					else{
-						msg = 'The detergent ' + id + ' has been updated';
-						console.log(msg);
-						backupModule.control_backup(true);
-						resolve({"status":'OK_modif',"data":msg});
-					}
-				});
-			}
-			else{
-				msg = 'The detergent ' + id + ' is present more than one time';
-				console.log(msg);
-				reject({"status":'Error', "data": msg});
-			}
-		})
-		}
-		else{
-			console.log(check);
-			reject({"status":'Error', "data":check});
-		}
-	})
-}
-
-
-//Function to delete a caracteristic of detergents
-/*caract : caracteristic to delete
-the characteristic will be removed from all detergents containing it
-*/
-var deleteCaract = function(db, caract){
-	let emitter = new EventEmitter();
-	let todelete = {};
-	todelete[caract] = 1;
-	db.collection('det').update({}, {$unset: todelete} , {multi: true}, function(err,result){
-			if(err){
-				emitter.emit('errorCode', ['Error', 'Error in the deletion of caracteristic ' + caract]);
-			}
-			else{
-				console.log('The caracteristic ' + db + ' has been deleted for all detergents');
-				backupModule.control_backup(true);
-				return ['OK_delete', 'The caracteristic ' + db + ' has been deleted for all detergents'];
-			}
-	});
-}
-
-
-
-//Function to rename a caracteristic of detergents
-/*caract1 : name of the caracteristic in the database
-*caract2 : new name
-*/
-var modifyCaract = function(db, caract1, caract2){
-	let rename = {};
-	rename[caract1] = caract2;
-	db.collection('det').update({}, {$rename: rename}, {multi: true}, function(err,result){
-		if(err){
-			emitter.emit('errorCode', ['Error', 'Error in the modification of caracteristic ' + caract1]);
-		}
-		else{
-			console.log('The caracteristic ' + caract1 + ' has been rename ' + caract2);
-			backupModule.control_backup(true);
-			emiter.emit(modifOK, ['OK_modif', 'The caracteristic ' + caract1 + ' has been rename ' + caract2])
-		}
-	});
-	return emitter;
-}
-
-
-
-//Function for a test
-var testFront = function(){
-	var list = [{ "_id" : "OM", "volume" : 391.1, "color" : [0,255,0], "category" : "maltoside"}, { "_id" : "NM", "volume" : 408.9, "color" : [0,255,0], "category" : "maltoside"}];
-	console.log(list);
-	return list;
-}
-
-
-
-//Function that returns a list of all categories of detergents
-var detCategory = function(db){
-	db.collection('det').distinct("category",(function(err, result){
-		if(err){
-			throw err;
-		}
-		else{
-			console.log(result);
-       		return result;
-		}
-   }))
-}
-
-
-
-//Function to return the database
-var db_for_detbelt = function(){
-    FindinDet().then(function(items) { //items contain all the detergents
-    	items = {'items' : items};
-        return backupModule.Json_mongo_detBelt_format(items);
-    });
-}
-
-
-//EXPORT
 
 module.exports = {
-	testFront: testFront,
-  	FindinDet: FindinDet,
   	getallkeys: getallkeys,
   	insertData: insertData,
   	deleteData: deleteData,
-  	deleteDet: deleteDet,
-  	insertDet: insertDet,
-  	modifyDet: modifyDet,
-	modifyCaract, modifyCaract,
-  	deleteCaract: deleteCaract,
-  	detCategory: detCategory,
-  	db_for_detbelt: db_for_detbelt,
-  	runBackup : runBackup,
-  	//testmongo : testmongo,
   	Find_a_Det : Find_a_Det,
 	Find_all_id : Find_all_id, 
 	sortByCategory : sortByCategory,
