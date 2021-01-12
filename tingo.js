@@ -215,6 +215,37 @@ const sortByCategory = function(db){
 	})
 }
 
+const getSnapshot = function(db){
+	return new Promise((resolve,reject)=>{ 
+		const collection = db.collection(cst.DB_JSON_NAME);
+		collection.find({}).toArray((err, content) => {
+			if(err) reject(err); 
+			try{
+				let storedDict = {"title" : "Detergent database snapshot", 
+					"date" : new Date(),
+					"author" : "tingo_snapshot",
+					"data" : {}
+				}
+				content.forEach((doc) => {
+					const slim_infos = {"name": doc._id, "vol": doc.volume, "color": doc.color}
+					if(doc.category in storedDict["data"]){
+						storedDict["data"][doc.category].push(slim_infos)
+					}
+					else{
+						storedDict["data"][doc.category] = [slim_infos]
+					}
+				})
+			resolve(storedDict)
+			}
+			catch(error) {reject(error)}
+			
+			
+		})
+		
+	})
+}
+
+
 
 
 
@@ -549,6 +580,7 @@ module.exports = {
   	runBackup : runBackup,
   	//testmongo : testmongo,
   	Find_a_Det : Find_a_Det,
-	  Find_all_id : Find_all_id, 
-	  sortByCategory : sortByCategory
+	Find_all_id : Find_all_id, 
+	sortByCategory : sortByCategory,
+	getSnapshot : getSnapshot
 };

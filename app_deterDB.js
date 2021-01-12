@@ -179,6 +179,16 @@ app.get("/sortByCategory", (req, res) => {
     })
 })
 
+app.get("/dbSnapshot", (req, res) => {
+  DbApi.getSnapshot(db).then(data => res.send(data))
+    .catch(err => {
+      console.error(`Error while sortByCategory : ${err}`)
+      res.send({"error": err.message})
+    })
+})
+
+
+
 app.listen(3709, function () {
   console.log('deterDB server listening on port 3709!')
 })
